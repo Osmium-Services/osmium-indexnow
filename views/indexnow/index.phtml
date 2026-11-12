@@ -59,25 +59,27 @@ $action = \htmlspecialchars($adminUrl('indexnow/'));
             </div>
         </form>
 
-        <?php if ($settings['key'] !== '') : ?>
-            <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0"><i class="bx bx-send me-2"></i>Actions</h5></div>
-                <div class="card-body d-flex flex-column gap-3">
-                    <form method="POST" action="<?= $action ?>">
-                        <input type="hidden" name="token" value="<?= $template['formToken'] ?? '' ?>">
-                        <input type="hidden" name="intent" value="submit_all">
-                        <button type="submit" class="btn btn-outline-primary w-100"><i class="bx bx-send me-1"></i>Submit all pages</button>
-                        <div class="form-text">Sends every page that allows indexing. Use it after turning IndexNow on, or after a service adds pages of its own.</div>
-                    </form>
-                    <form method="POST" action="<?= $action ?>">
-                        <input type="hidden" name="token" value="<?= $template['formToken'] ?? '' ?>">
-                        <input type="hidden" name="intent" value="new_key">
-                        <button type="submit" class="btn btn-outline-secondary w-100"><i class="bx bx-refresh me-1"></i>Make a new key</button>
-                        <div class="form-text">Replaces the key and its file. Only needed if the key was ever misused.</div>
-                    </form>
-                </div>
+        <?php $hasKey = $settings['key'] !== ''; ?>
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0"><i class="bx bx-send me-2"></i>Actions</h5></div>
+            <div class="card-body d-flex flex-column gap-3">
+                <?php if (!$hasKey) : ?>
+                    <div class="form-text mt-0">Save the settings first. That makes the key these buttons use.</div>
+                <?php endif ?>
+                <form method="POST" action="<?= $action ?>">
+                    <input type="hidden" name="token" value="<?= $template['formToken'] ?? '' ?>">
+                    <input type="hidden" name="intent" value="submit_all">
+                    <button type="submit" class="btn btn-outline-primary w-100" <?= $hasKey ? '' : 'disabled' ?>><i class="bx bx-send me-1"></i>Submit all pages</button>
+                    <div class="form-text">Sends every page that allows indexing. Use it after turning IndexNow on, or after a service adds pages of its own.</div>
+                </form>
+                <form method="POST" action="<?= $action ?>">
+                    <input type="hidden" name="token" value="<?= $template['formToken'] ?? '' ?>">
+                    <input type="hidden" name="intent" value="new_key">
+                    <button type="submit" class="btn btn-outline-secondary w-100" <?= $hasKey ? '' : 'disabled' ?>><i class="bx bx-refresh me-1"></i>Make a new key</button>
+                    <div class="form-text">Replaces the key and its file. Only needed if the key was ever misused.</div>
+                </form>
             </div>
-        <?php endif ?>
+        </div>
     </div>
 </div>
 
