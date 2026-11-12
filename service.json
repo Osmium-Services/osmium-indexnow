@@ -1,7 +1,7 @@
 {
     "id": "osmium-indexnow",
     "name": "Osmium IndexNow",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Tells Bing, Yandex and other IndexNow search engines the moment a page is created, edited or deleted, instead of waiting for them to re-crawl; Google does not use IndexNow",
     "category": "marketing-analytics",
     "website": "https://www.indexnow.org",
@@ -34,6 +34,8 @@
                     "id": "indexnow",
                     "label": "IndexNow",
                     "icon": "bx bx-rocket",
+                    "color": "#6f42c1",
+                    "placement": "traffic",
                     "route": "admin/indexnow",
                     "activePattern": "admin/indexnow*",
                     "role": null
