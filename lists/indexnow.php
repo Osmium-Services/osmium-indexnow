@@ -3,22 +3,20 @@
 declare(strict_types=1);
 
 /**
- * IndexNow's recent submissions, rendered by Osmium\Modules\Admin\Core\ListView. One row per submission (its first URL and how many), from IndexNowLog::recent().
+ * IndexNow's recent submissions, rendered by Osmium\Modules\Admin\Core\ListView. Rows are prepared by IndexNowLogRows.
  */
 return [
     'log' => [
         'id' => 'indexnow-log',
-        'title' => 'Recent Submissions',
+        'title' => 'Recent Activity',
         'icon' => 'bx-history',
         'iconClass' => 'text-primary',
-        'noun' => ['submission', 'submissions'],
+        'noun' => ['entry', 'entries'],
         'emptyText' => 'Nothing sent yet',
         'columns' => [
-            ['key' => 'sent_at', 'label' => 'Sent', 'type' => 'text', 'sortKey' => 'id', 'nowrap' => true],
-            ['key' => 'url', 'label' => 'URL', 'type' => 'text', 'strong' => true, 'fill' => true],
-            ['key' => 'url_count', 'label' => 'URLs', 'type' => 'text', 'align' => 'end', 'nowrap' => true],
-            ['key' => 'reason', 'label' => 'Why', 'type' => 'text', 'nowrap' => true, 'hideBelow' => 'md'],
-            ['key' => 'detail', 'label' => 'Answer', 'type' => 'text', 'nowrap' => true],
+            ['key' => 'when', 'label' => 'When', 'type' => 'text', 'sortKey' => 'id', 'nowrap' => true],
+            ['key' => 'what', 'label' => 'What', 'type' => 'text', 'strong' => true, 'fill' => true],
+            ['key' => 'answer', 'label' => 'Answer', 'type' => 'text', 'nowrap' => true],
         ],
         'actions' => [],
     ],

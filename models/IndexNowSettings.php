@@ -13,10 +13,10 @@ class IndexNowSettings
     public const PATH = 'app/config/services/osmium-indexnow.json.php';
     public const SUBMIT_ALL_COOLDOWN = 86400;
 
-    /** @return array{enabled: bool, key: string, lastSubmitAll: int} */
+    /** @return array{enabled: bool, key: string, lastSubmitAll: int, lastSubmitAllCount: int} */
     public static function get(string $path = self::PATH): array
     {
-        $defaults = ['enabled' => false, 'key' => '', 'lastSubmitAll' => 0];
+        $defaults = ['enabled' => false, 'key' => '', 'lastSubmitAll' => 0, 'lastSubmitAllCount' => 0];
 
         $fileExists = \file_exists($path);
         if (!$fileExists) return $defaults;
@@ -34,19 +34,18 @@ class IndexNowSettings
             'enabled' => \is_array($saved) && !empty($saved['enabled']) && self::isValidKey($key),
             'key' => self::isValidKey($key) ? $key : '',
             'lastSubmitAll' => \is_array($saved) ? (int) ($saved['lastSubmitAll'] ?? 0) : 0,
+            'lastSubmitAllCount' => \is_array($saved) ? (int) ($saved['lastSubmitAllCount'] ?? 0) : 0,
         ];
     }
 
-    public static function save(bool $enabled, string $key, int $lastSubmitAll = 0, string $path = self::PATH): void
+    /** @param array{enabled: bool, key: string, lastSubmitAll: int, lastSubmitAllCount: int} $settings */
+    public static function save(array $settings, string $path = self::PATH): void
     {
         $dir = \dirname($path);
         $dirMissing = !\is_dir($dir);
         if ($dirMissing) \mkdir(directory: $dir, permissions: 0755, recursive: true);
 
-        $json = \json_encode(
-            value: ['indexnow' => ['enabled' => $enabled, 'key' => $key, 'lastSubmitAll' => $lastSubmitAll]],
-            flags: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
-        );
+        $json = \json_encode(value: ['indexnow' => $settings], flags: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         \file_put_contents($path, "<?php exit(); ?>\n" . $json . "\n");
     }
 
