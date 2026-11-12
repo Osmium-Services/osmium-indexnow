@@ -5,7 +5,8 @@ use Osmium\Modules\Admin\Core\ListView;
 $settings = $admin['settings'];
 $status = $admin['status'];
 $isOn = $settings['enabled'];
-$resendReady = $isOn && $admin['resendWait'] === 0;
+$resendReady = $isOn && $admin['isLive'] && $admin['resendWait'] === 0;
+$resendLabel = $settings['lastSubmitAll'] === 0 ? 'Send all pages' : 'Send all pages again';
 $listContext = ['adminUrl' => $adminUrl, 'isAdmin' => true];
 $action = \htmlspecialchars($adminUrl('indexnow/'));
 $token = \htmlspecialchars((string) ($template['formToken'] ?? ''));
@@ -49,10 +50,12 @@ $token = \htmlspecialchars((string) ($template['formToken'] ?? ''));
                 <form method="POST" action="<?= $action ?>">
                     <input type="hidden" name="token" value="<?= $token ?>">
                     <input type="hidden" name="intent" value="resend">
-                    <button type="submit" class="btn btn-outline-primary w-100" <?= $resendReady ? '' : 'disabled' ?>>Send all pages again</button>
+                    <button type="submit" class="btn btn-outline-primary w-100" <?= $resendReady ? '' : 'disabled' ?>><?= $resendLabel ?></button>
                     <div class="form-text">
                         <?php if (!$isOn) : ?>
                             Turn IndexNow on first.
+                        <?php elseif (!$admin['isLive']) : ?>
+                            Only the live site sends pages.
                         <?php elseif ($admin['resendWait'] > 0) : ?>
                             All pages were sent recently. Available again in <?= (int) \ceil($admin['resendWait'] / 3600) ?> hours.
                         <?php else : ?>

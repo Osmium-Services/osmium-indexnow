@@ -32,6 +32,7 @@ class IndexNowController extends AdminController
         $log = new IndexNowLog($this->osmium->dataSource);
 
         $this->data['admin']['settings'] = $settings;
+        $this->data['admin']['isLive'] = $site->isLive;
         $this->data['admin']['status'] = IndexNowStatus::describe($settings, $site->isLive);
         $this->data['admin']['resendWait'] = IndexNowSettings::submitAllWait($settings['lastSubmitAll'], \time());
         $this->data['admin']['keyUrl'] = $settings['key'] === '' ? '' : $site->baseUrl . '/' . $settings['key'] . '.txt';

@@ -40,6 +40,17 @@ class IndexNowLog extends Model
         return $this->database->prepare(sql: $this->loadSqlFile('log-recent.sql'), bindings: [':limit' => $limit])->resultset();
     }
 
+    /** True when this URL was sent alone for this reason and accepted in the last 10 minutes */
+    public function recentlySent(string $url, string $reason): bool
+    {
+        $row = $this->database->prepare(
+            sql: $this->loadSqlFile('log-recently-sent.sql'),
+            bindings: [':url' => $url, ':reason' => $reason],
+        )->single();
+
+        return !empty($row);
+    }
+
     public function prune(): void
     {
         $this->database->prepare(sql: $this->loadSqlFile('log-prune-age.sql'))->execute();

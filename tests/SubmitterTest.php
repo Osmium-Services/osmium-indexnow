@@ -92,6 +92,34 @@ class SubmitterTest extends DatabaseTestCase
         $this->assertSame([], $client->sent);
     }
 
+    public function test_the_same_page_saved_again_within_ten_minutes_is_not_sent_again(): void
+    {
+        $client = $this->fakeClient(200);
+        $submitter = $this->submitter($client);
+
+        $submitter->submit(['https://www.example.com/a'], 'saved');
+        $second = $submitter->submit(['https://www.example.com/a'], 'saved');
+        $submitter->submit(['https://www.example.com/a'], 'removed');
+        $submitter->submit(['https://www.example.com/b'], 'saved');
+
+        $this->assertSame(0, $second);
+        $this->assertCount(3, $client->sent);
+    }
+
+    public function test_a_failed_ping_does_not_block_the_retry_and_send_all_always_goes(): void
+    {
+        $failing = $this->fakeClient(403);
+        $this->submitter($failing)->submit(['https://www.example.com/a'], 'saved');
+        $this->submitter($failing)->submit(['https://www.example.com/a'], 'saved');
+        $this->assertCount(2, $failing->sent);
+
+        $client = $this->fakeClient(200);
+        $submitter = $this->submitter($client);
+        $submitter->submit(['https://www.example.com/c'], 'saved');
+        $submitter->submit(['https://www.example.com/c'], 'all pages');
+        $this->assertCount(2, $client->sent);
+    }
+
     public function test_a_refusal_is_logged_with_its_meaning(): void
     {
         $this->submitter($this->fakeClient(403))->submit(['https://www.example.com/a'], 'removed');

@@ -28,12 +28,18 @@ class IndexNowStatus
             ];
         }
 
-        $neverSent = $settings['lastSubmitAll'] === 0;
-        $text = $neverSent
-            ? 'No pages have been sent yet. Open Advanced and use Send all pages.'
-            : $settings['lastSubmitAllCount'] . ' pages sent on ' . \date('j M Y', $settings['lastSubmitAll'])
-                . '. New and edited pages are sent automatically.';
+        return ['badge' => 'On', 'badgeClass' => 'bg-label-success', 'text' => self::liveText($settings)];
+    }
 
-        return ['badge' => 'On', 'badgeClass' => 'bg-label-success', 'text' => $text];
+    /** @param array{lastSubmitAll: int, lastSubmitAllCount: int} $settings */
+    private static function liveText(array $settings): string
+    {
+        $neverSent = $settings['lastSubmitAll'] === 0;
+        if ($neverSent) return 'No pages have been sent yet. Open Advanced and use Send all pages.';
+
+        $count = $settings['lastSubmitAllCount'];
+        $what = $count > 0 ? $count . ' pages' : 'Pages'; // Releases before 0.3.0 saved the date but not the count
+
+        return $what . ' sent on ' . \date('j M Y', $settings['lastSubmitAll']) . '. New and edited pages are sent automatically.';
     }
 }

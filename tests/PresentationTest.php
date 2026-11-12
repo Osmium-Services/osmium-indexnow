@@ -43,6 +43,13 @@ class PresentationTest extends TestCase
         $this->assertStringContainsString('sent automatically', $status['text']);
     }
 
+    public function test_status_without_a_stored_count_never_says_zero_pages(): void
+    {
+        $status = IndexNowStatus::describe($this->settings(true, (int) \strtotime('2026-11-12 12:39:00'), 0), true);
+
+        $this->assertStringStartsWith('Pages sent on 12 Nov 2026.', $status['text']);
+    }
+
     public function test_status_when_on_live_but_nothing_sent_yet_points_to_advanced(): void
     {
         $status = IndexNowStatus::describe($this->settings(true), true);

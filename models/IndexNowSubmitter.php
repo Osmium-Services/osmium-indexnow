@@ -28,6 +28,9 @@ class IndexNowSubmitter
         $isOn = $settings['enabled'] && $this->site->isLive && $urls !== [];
         if (!$isOn) return 0;
 
+        $urls = $this->withoutRecentRepeats($urls, $reason);
+        if ($urls === []) return 0;
+
         $keyFileReady = IndexNowKeyFile::ensure(documentRoot: $this->documentRoot, key: $settings['key']);
         if (!$keyFileReady) return 0;
 
@@ -48,5 +51,19 @@ class IndexNowSubmitter
         }
 
         return $httpCode;
+    }
+
+    /**
+     * Saving a page again within 10 minutes of an accepted ping for it sends nothing new. Send all pages always goes through.
+     *
+     * @param string[] $urls
+     * @return string[]
+     */
+    private function withoutRecentRepeats(array $urls, string $reason): array
+    {
+        $isBatch = $reason === 'all pages';
+        if ($isBatch) return $urls;
+
+        return \array_values(\array_filter($urls, fn(string $url): bool => !$this->log->recentlySent($url, $reason)));
     }
 }
