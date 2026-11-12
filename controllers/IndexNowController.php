@@ -119,7 +119,8 @@ class IndexNowController extends AdminController
         $site = IndexNowSite::fromSite($this->osmium->config->site);
         $redirected = $this->osmium->model->redirect->activePaths();
         $pages = $this->osmium->model->page->getSitemap(mode: 'indexable', redirectedPaths: $redirected);
-        $urls = \array_map(fn(array $page): string => $site->pageUrl((string) $page['url']), $pages);
+        // getSitemap() leaves the home page out (sitemaps list it separately), so add it
+        $urls = [$site->pageUrl(''), ...\array_map(fn(array $page): string => $site->pageUrl((string) $page['url']), $pages)];
 
         $submitter = new IndexNowSubmitter(
             site: $site,
