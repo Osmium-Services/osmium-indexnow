@@ -35,7 +35,7 @@ class IndexNowTest extends TestCase
 
     public function test_settings_default_to_off_with_no_key(): void
     {
-        $this->assertSame(['enabled' => false, 'key' => ''], IndexNowSettings::get($this->dir . '/none.json.php'));
+        $this->assertSame(['enabled' => false, 'key' => '', 'lastSubmitAll' => 0], IndexNowSettings::get($this->dir . '/none.json.php'));
     }
 
     public function test_settings_round_trip_through_the_php_guarded_file(): void
@@ -43,9 +43,9 @@ class IndexNowTest extends TestCase
         $path = $this->dir . '/settings.json.php';
         $key = IndexNowSettings::newKey();
 
-        IndexNowSettings::save(enabled: true, key: $key, path: $path);
+        IndexNowSettings::save(enabled: true, key: $key, lastSubmitAll: 1700000000, path: $path);
 
-        $this->assertSame(['enabled' => true, 'key' => $key], IndexNowSettings::get($path));
+        $this->assertSame(['enabled' => true, 'key' => $key, 'lastSubmitAll' => 1700000000], IndexNowSettings::get($path));
         $this->assertStringStartsWith('<?php exit(); ?>', (string) \file_get_contents($path));
     }
 
@@ -54,7 +54,15 @@ class IndexNowTest extends TestCase
         $path = $this->dir . '/bad.json.php';
         IndexNowSettings::save(enabled: true, key: 'x/../y', path: $path);
 
-        $this->assertSame(['enabled' => false, 'key' => ''], IndexNowSettings::get($path));
+        $this->assertSame(['enabled' => false, 'key' => '', 'lastSubmitAll' => 0], IndexNowSettings::get($path));
+    }
+
+    public function test_submit_all_waits_a_day_after_use(): void
+    {
+        $this->assertSame(0, IndexNowSettings::submitAllWait(0, 1700000000));
+        $this->assertSame(86400, IndexNowSettings::submitAllWait(1700000000, 1700000000));
+        $this->assertSame(3600, IndexNowSettings::submitAllWait(1700000000, 1700000000 + 86400 - 3600));
+        $this->assertSame(0, IndexNowSettings::submitAllWait(1700000000, 1700000000 + 86400));
     }
 
     public function test_key_rules(): void

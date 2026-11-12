@@ -69,8 +69,8 @@ $action = \htmlspecialchars($adminUrl('indexnow/'));
                 <form method="POST" action="<?= $action ?>">
                     <input type="hidden" name="token" value="<?= $template['formToken'] ?? '' ?>">
                     <input type="hidden" name="intent" value="submit_all">
-                    <button type="submit" class="btn btn-outline-primary w-100" <?= $hasKey ? '' : 'disabled' ?>><i class="bx bx-send me-1"></i>Submit all pages</button>
-                    <div class="form-text">Sends every page that allows indexing. Use it after turning IndexNow on, or after a service adds pages of its own.</div>
+                    <button type="submit" class="btn btn-outline-primary w-100" <?= $hasKey && $admin['submitAllWait'] === 0 ? '' : 'disabled' ?>><i class="bx bx-send me-1"></i>Submit all pages</button>
+                    <div class="form-text">Sends every page that allows indexing. Needed once after turning IndexNow on: pages saved later announce themselves.<?= $admin['submitAllWait'] > 0 ? ' Used recently, so it is available again in ' . (int) \ceil($admin['submitAllWait'] / 3600) . ' hours.' : '' ?></div>
                 </form>
                 <form method="POST" action="<?= $action ?>">
                     <input type="hidden" name="token" value="<?= $template['formToken'] ?? '' ?>">

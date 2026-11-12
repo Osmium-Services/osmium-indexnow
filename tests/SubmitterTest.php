@@ -75,8 +75,9 @@ class SubmitterTest extends DatabaseTestCase
         $this->assertSame('https://www.example.com/abcd1234abcd1234.txt', $client->sent[0]['keyLocation']);
         $this->assertSame('abcd1234abcd1234', \file_get_contents($this->root . '/abcd1234abcd1234.txt'));
 
-        $rows = (new IndexNowLog($this->db))->recent(2);
-        $this->assertSame(['https://www.example.com/b', 'https://www.example.com/a'], \array_column($rows, 'url'));
+        $rows = (new IndexNowLog($this->db))->recent(1);
+        $this->assertSame('https://www.example.com/a', $rows[0]['url']);
+        $this->assertSame(2, (int) $rows[0]['url_count']);
         $this->assertSame('Accepted', $rows[0]['detail']);
         $this->assertSame('saved', $rows[0]['reason']);
     }
@@ -110,6 +111,20 @@ class SubmitterTest extends DatabaseTestCase
         };
 
         $this->assertSame(0, $this->submitter($client)->submit(['https://www.example.com/a'], 'saved'));
+    }
+
+    public function test_the_log_keeps_only_the_newest_200_rows(): void
+    {
+        $log = new IndexNowLog($this->db);
+        for ($i = 0; $i < 205; $i++) {
+            $log->record(["https://www.example.com/p{$i}"], 'saved', 200);
+        }
+
+        $log->prune();
+
+        $rows = $log->recent(500);
+        $this->assertCount(200, $rows);
+        $this->assertSame('https://www.example.com/p204', $rows[0]['url']);
     }
 
     public function test_the_hook_does_nothing_without_a_data_source(): void

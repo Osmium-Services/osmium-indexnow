@@ -8,7 +8,7 @@ use Osmium\Core\Library\OsmiumPDO;
 use Osmium\Core\Models\Model;
 
 /**
- * What was sent and what IndexNow answered, kept for 90 days.
+ * What was sent and what IndexNow answered: one row per submission, kept 30 days and at most 200 rows.
  */
 class IndexNowLog extends Model
 {
@@ -19,16 +19,19 @@ class IndexNowLog extends Model
         parent::__construct(database: $database, tableName: 'indexnow_log');
     }
 
-    /** @param string[] $urls one row per URL, all sharing the answer */
+    /** @param string[] $urls the submission's URLs: the row keeps the first and how many there were */
     public function record(array $urls, string $reason, int $httpCode): void
     {
-        $detail = IndexNowClient::describe($httpCode);
-        foreach ($urls as $url) {
-            $this->database->prepare(
-                sql: $this->loadSqlFile('log-insert.sql'),
-                bindings: [':url' => $url, ':reason' => $reason, ':http_code' => $httpCode, ':detail' => $detail],
-            )->execute();
-        }
+        $this->database->prepare(
+            sql: $this->loadSqlFile('log-insert.sql'),
+            bindings: [
+                ':url' => (string) ($urls[0] ?? ''),
+                ':url_count' => \count($urls),
+                ':reason' => $reason,
+                ':http_code' => $httpCode,
+                ':detail' => IndexNowClient::describe($httpCode),
+            ],
+        )->execute();
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -39,6 +42,7 @@ class IndexNowLog extends Model
 
     public function prune(): void
     {
-        $this->database->prepare(sql: $this->loadSqlFile('log-prune.sql'))->execute();
+        $this->database->prepare(sql: $this->loadSqlFile('log-prune-age.sql'))->execute();
+        $this->database->prepare(sql: $this->loadSqlFile('log-prune-cap.sql'))->execute();
     }
 }

@@ -30,6 +30,7 @@ class IndexNowController extends AdminController
 
         $this->data['admin']['settings'] = $settings;
         $this->data['admin']['isLive'] = $site->isLive;
+        $this->data['admin']['submitAllWait'] = IndexNowSettings::submitAllWait($settings['lastSubmitAll'], \time());
         $this->data['admin']['keyUrl'] = $settings['key'] === '' ? '' : $site->baseUrl . '/' . $settings['key'] . '.txt';
         $this->data['admin']['lists'] = require __DIR__ . '/../lists/indexnow.php';
         $this->data['admin']['log'] = (new IndexNowLog($this->osmium->dataSource))->recent();
@@ -65,7 +66,7 @@ class IndexNowController extends AdminController
         $keyFileWritten = IndexNowKeyFile::ensure(documentRoot: $this->documentRoot(), key: $key);
         if (!$keyFileWritten) $this->finish(error: 'Could not write the key file to the web root. Check the folder is writable.');
 
-        IndexNowSettings::save(enabled: $enabled, key: $key);
+        IndexNowSettings::save(enabled: $enabled, key: $key, lastSubmitAll: $settings['lastSubmitAll']);
         $this->admin->model->changelog->log(description: 'Updated IndexNow settings', recordType: 'settings');
 
         return $enabled ? 'Saved. IndexNow is on.' : 'Saved. IndexNow is off.';
@@ -80,7 +81,7 @@ class IndexNowController extends AdminController
         if (!$keyFileWritten) $this->finish(error: 'Could not write the key file to the web root. Check the folder is writable.');
 
         IndexNowKeyFile::remove(documentRoot: $this->documentRoot(), key: $settings['key']);
-        IndexNowSettings::save(enabled: $settings['enabled'], key: $newKey);
+        IndexNowSettings::save(enabled: $settings['enabled'], key: $newKey, lastSubmitAll: $settings['lastSubmitAll']);
         $this->admin->model->changelog->log(description: 'Made a new IndexNow key', recordType: 'settings');
 
         return 'New key made and its file written.';
@@ -88,6 +89,11 @@ class IndexNowController extends AdminController
 
     private function submitAll(): string
     {
+        $settings = IndexNowSettings::get();
+        $wait = IndexNowSettings::submitAllWait($settings['lastSubmitAll'], \time());
+        $coolingDown = $wait > 0;
+        if ($coolingDown) $this->finish(error: 'Submit all pages was used in the last 24 hours. It can be used again in ' . \ceil($wait / 3600) . ' hours.');
+
         $site = IndexNowSite::fromSite($this->osmium->config->site);
         $redirected = $this->osmium->model->redirect->activePaths();
         $pages = $this->osmium->model->page->getSitemap(mode: 'indexable', redirectedPaths: $redirected);
@@ -98,13 +104,15 @@ class IndexNowController extends AdminController
             log: new IndexNowLog($this->osmium->dataSource),
             client: new IndexNowClient(),
             documentRoot: $this->documentRoot(),
-            settings: IndexNowSettings::get(),
+            settings: $settings,
         );
         $httpCode = $submitter->submit(urls: $urls, reason: 'all pages');
         $this->admin->model->changelog->log(description: 'Submitted all pages to IndexNow', recordType: 'settings');
 
         $sent = $httpCode === 200 || $httpCode === 202;
         if (!$sent) $this->finish(error: $this->notSentMessage($httpCode));
+
+        IndexNowSettings::save(enabled: $settings['enabled'], key: $settings['key'], lastSubmitAll: \time());
 
         return \count($urls) . ' pages sent. ' . IndexNowClient::describe($httpCode) . '.';
     }

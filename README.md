@@ -10,12 +10,12 @@ Admin: Traffic > IndexNow (on/off, key file link, Submit all pages, Make a new k
 - **Key file**: saving the settings makes a 32-character key and writes `<web root>/<key>.txt` containing just the key. Every submission checks the file is still there and rewrites it if a deploy dropped it. The key is public by design.
 - **Live only**: nothing is sent from dev or staging (`environment` of `dev` or `staging`).
 - **Never blocks a save**: one request, 3 s connect and 5 s total timeout, errors logged and swallowed.
-- **Submit all pages**: sends every indexable page from the sitemap query (up to 10,000 per request). Use it after turning the service on, and after a service (blog, shop) adds pages of its own, since only pages saved in the Pages area announce themselves.
-- **Not covered**: text edited inside a theme's view files, and pages a service saves itself.
+- **Submit all pages**: sends every indexable page from the sitemap query (up to 10,000 per request), once per 24 hours (the time is kept in the settings file). It is needed once after turning the service on. Pages saved later announce themselves, including Blog and Shop pages, since they save through the same Pages code.
+- **Not covered**: text edited inside a theme's view files, and the Shop service switching its pages on or off (it writes to the pages table directly).
 
 ## Data
 
-`indexnow_log` (prefixed), kept 90 days. Uninstalling keeps it, the settings file `app/config/services/osmium-indexnow.json.php` and the key file.
+`indexnow_log` (prefixed): one row per submission, kept 30 days and at most 200 rows. Uninstalling keeps it, the settings file `app/config/services/osmium-indexnow.json.php` and the key file.
 
 ## Tests
 
