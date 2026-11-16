@@ -55,7 +55,6 @@ class IndexNowClient
         ]);
         \curl_exec($curl);
         $httpCode = (int) \curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        \curl_close($curl);
 
         return $httpCode;
     }
