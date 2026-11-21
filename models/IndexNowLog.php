@@ -40,6 +40,30 @@ class IndexNowLog extends Model
         return $this->database->prepare(sql: $this->loadSqlFile('log-recent.sql'), bindings: [':limit' => $limit])->resultset();
     }
 
+    /** @return array<int, array<string, mixed>> the last 7 days, newest day first */
+    public function summaryByDay(): array
+    {
+        return $this->database->prepare(sql: $this->loadSqlFile('log-summary-by-day.sql'))->resultset();
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function summaryByReason(): array
+    {
+        return $this->database->prepare(sql: $this->loadSqlFile('log-summary-by-reason.sql'))->resultset();
+    }
+
+    /** @return array<int, array<string, mixed>> the newest failed submissions */
+    public function recentFailures(int $limit): array
+    {
+        return $this->database->prepare(sql: $this->loadSqlFile('log-recent-failures.sql'), bindings: [':limit' => $limit])->resultset();
+    }
+
+    /** @return array<string, mixed> */
+    public function overview(): array
+    {
+        return $this->database->prepare(sql: $this->loadSqlFile('log-overview.sql'))->single() ?: [];
+    }
+
     /** True when this URL was sent alone for this reason and accepted in the last 10 minutes */
     public function recentlySent(string $url, string $reason): bool
     {

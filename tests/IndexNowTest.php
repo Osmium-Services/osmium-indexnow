@@ -111,10 +111,12 @@ class IndexNowTest extends TestCase
 
     public function test_only_a_live_site_counts_as_live(): void
     {
-        foreach (['dev' => false, 'staging' => false, 'live' => true] as $environment => $expected) {
+        foreach (['dev' => false, 'staging' => false, 'stage' => false, 'test' => false, 'Live' => false, '' => false, 'live' => true] as $environment => $expected) {
             $site = IndexNowSite::fromSite((object) ['FQDN' => 'https://x.test', 'environment' => $environment]);
             $this->assertSame($expected, $site->isLive, $environment);
         }
+
+        $this->assertFalse(IndexNowSite::fromSite((object) ['FQDN' => 'https://x.test'])->isLive, 'no environment set');
     }
 
     public function test_payload_is_deduplicated_and_capped(): void

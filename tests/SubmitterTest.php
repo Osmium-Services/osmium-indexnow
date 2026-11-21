@@ -162,4 +162,27 @@ class SubmitterTest extends DatabaseTestCase
 
         $this->assertTrue(true); // no error is the point
     }
+
+    public function test_the_log_summaries_count_accepted_and_failed_without_urls(): void
+    {
+        $log = new IndexNowLog($this->db);
+        $before = $log->overview()['rows_kept'] ?? 0;
+        $log->record(['https://www.example.com/a', 'https://www.example.com/b'], 'saved', 200);
+        $log->record(['https://www.example.com/c'], 'saved', 403);
+        $log->record(['https://www.example.com/d'], 'removed', 202);
+
+        $overview = $log->overview();
+        $this->assertSame($before + 3, (int) $overview['rows_kept']);
+        $this->assertNotNull($overview['last_accepted']);
+
+        $today = $log->summaryByDay()[0];
+        $this->assertGreaterThanOrEqual(2, (int) $today['accepted']);
+        $this->assertGreaterThanOrEqual(1, (int) $today['failed']);
+        $this->assertGreaterThanOrEqual(3, (int) $today['accepted_urls']);
+
+        $failure = $log->recentFailures(1)[0];
+        $this->assertSame(403, (int) $failure['http_code']);
+        $this->assertArrayNotHasKey('url', $failure);
+        $this->assertContains('removed', \array_column($log->summaryByReason(), 'reason'));
+    }
 }

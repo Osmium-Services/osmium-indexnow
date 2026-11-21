@@ -33,7 +33,7 @@ class IndexNowSite
 
         return new self(
             baseUrl: \rtrim((string) $site->FQDN, '/'),
-            isLive: !\in_array($environment, ['dev', 'staging'], true),
+            isLive: $environment === 'live', // Allowlist, as core's own check: any other or mistyped value never sends
             trailingSlash: (bool) ($site->urlTrailingSlash ?? false),
         );
     }
