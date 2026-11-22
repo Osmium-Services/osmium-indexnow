@@ -1,7 +1,7 @@
 {
     "id": "osmium-indexnow",
     "name": "Osmium IndexNow",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "Tells Bing, Yandex and other IndexNow search engines the moment a page is created, edited or deleted, instead of waiting for them to re-crawl; Google does not use IndexNow",
     "category": "marketing-analytics",
     "website": "https://www.indexnow.org",
@@ -31,14 +31,12 @@
     },
     "admin": {
         "menu": {
-            "section": "Traffic",
             "items": [
                 {
                     "id": "indexnow",
                     "label": "IndexNow",
                     "icon": "bx bx-rocket",
                     "color": "#6f42c1",
-                    "placement": "traffic",
                     "route": "admin/indexnow",
                     "activePattern": "admin/indexnow*",
                     "role": null
@@ -55,6 +53,6 @@
         }
     },
     "setup": {
-        "postInstallNote": "Off by default. Open Traffic > IndexNow and press Turn on: on the live site that makes the key, writes its file to the web root and sends every page once. After that, pages saved in the admin (including Blog and Shop pages) are sent automatically. Nothing is sent from dev or staging. Google ignores IndexNow."
+        "postInstallNote": "Off by default. Open Service Settings > IndexNow and press Turn on: on the live site that makes the key, writes its file to the web root and sends every page once. After that, pages saved in the admin (including Blog and Shop pages) are sent automatically. Nothing is sent from dev or staging. Google ignores IndexNow."
     }
 }
