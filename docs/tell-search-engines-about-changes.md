@@ -1,6 +1,7 @@
 ---
 title: Tell search engines when a page changes
 tags: indexnow, bing, yandex, search engines, indexing, crawl, seo
+page: admin/indexnow
 ---
 
 **IndexNow** tells Bing, Yandex, Naver and Seznam the moment a page is created, edited or deleted, instead of waiting for them to find it. Google does not use IndexNow. Pages set to noindex are not sent.
