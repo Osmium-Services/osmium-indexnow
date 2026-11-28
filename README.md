@@ -2,7 +2,7 @@
 
 Tells Bing, Yandex, Naver, Seznam and other [IndexNow](https://www.indexnow.org) search engines the moment a page is created, edited, moved, deleted or restored, instead of waiting for them to re-crawl. Google does not use IndexNow.
 
-Admin: Service Settings > IndexNow. A status line, one Turn on / Turn off button, an Advanced section (Send all pages again, the key file link, Make a new key) and a plain-English activity list.
+Admin: Services > IndexNow. A status line, one Turn on / Turn off button, an Advanced section (Send all pages again, the key file link, Make a new key) and a plain-English activity list.
 
 ## How it works
 
